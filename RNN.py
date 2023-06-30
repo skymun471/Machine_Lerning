@@ -5,6 +5,12 @@ from tensorflow import keras
 import pandas as pd
 import matplotlib.pyplot as plt
 
+PATH = "/Users/munhaneul/PycharmProjects/Machine_learning_handson/data/"
+data1 = pd.read_csv(PATH + "2023-4-14_162237.csv")
+
+
+
+
 def generate_timeseries(batch_size, n_steps):
     freq1, freq2, offset1, offset2 = np.random.rand(4, batch_size, 1)
     time = np.linspace(0, 1, n_steps)
@@ -40,3 +46,29 @@ func_model.compile(optimizer=tf.optimizers.Adam(),
 
 func_model.fit(X_train, y_train, epochs=20)
 print(func_model.evaluate(X_test, y_test))
+
+# series = generate_timeseries(1, n_steps + 10)
+# X_new, Y_new = series[:, :n_steps], series[:, n_steps:]
+X = X_val
+for step_ahead in range(100):
+    y_pred_one = func_model.predict(X[:, step_ahead:])[:, np.newaxis, :]
+    X = np.concatenate([X, y_pred_one], axis=1)
+
+Y_pred = X[:, n_steps:]
+print(Y_pred.shape)
+print(Y_pred[0][:,:].shape)
+a = Y_pred[0][:,:].reshape((1,100))
+print(a)
+b = X_val.reshape((1,-1))
+print(b)
+
+plt.figure(figsize=(20,10))
+plt.rc('axes', labelsize=20)   # x,y축 label 폰트 크기
+plt.plot(a[0], 'b', label='Predict Data')
+plt.plot(b[0][0:100], 'r', label='Actual Data')
+# plt.title(target_name_2[0], fontsize=18)
+plt.xlabel("Validation Data")
+# plt.ylabel("km/h")
+# plt.legend(loc='upper right')
+plt.show()
+# plt.savefig("./result/Test_17")
